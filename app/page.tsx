@@ -223,6 +223,9 @@ export default function Home() {
           >
             Clear Fields
           </button>
+          <p className="text-sm text-center">
+      Made with ❤️ & NextJS By: <span className="font-bold">John Dave Aquino</span>
+    </p>
         </div>
       </div>
       <MessageDialog
@@ -231,6 +234,9 @@ export default function Home() {
         message={dialogState.message}
         onClose={closeDialog}
       />
+      
     </div>
+    
   );
+  
 }
