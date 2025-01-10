@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 const useExchangeRates = () => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
@@ -14,11 +13,9 @@ const useExchangeRates = () => {
         setExchangeRates(data.usd || {});
       } catch (error) {
         console.error("Failed to fetch exchange rates:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      } 
     };
-
+    
     fetchExchangeRates();
   }, []);
 
