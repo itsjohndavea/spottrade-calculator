@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import MessageDialog from "./messagedialog"; // Import the MessageDialog component
+import useExchangeRates from "./exchangerates";
 
 export default function Home() {
   const [buyPrice, setBuyPrice] = useState<string>("");
@@ -9,21 +10,13 @@ export default function Home() {
   const [quantity, setQuantity] = useState<string>("");
   const [fees, setFees] = useState<string>("");
   const [profit, setProfit] = useState<string | null>(null);
-  const [selectedCurrency, setSelectedCurrency] = useState<string>("$");
+  const [selectedCurrency, setSelectedCurrency] = useState<string>("USD");
   const [dialogState, setDialogState] = useState({
     isOpen: false,
     type: "info" as "error" | "success" | "info",
     message: "",
   });
-
-  // Static exchange rates for simplicity (in real-world apps, fetch from an API)
-  const exchangeRates: Record<string, number> = {
-    USD: 1, // Base currency
-    EUR: 0.85,
-    GBP: 0.75,
-    JPY: 110,
-    AUD: 1.35,
-  };
+  const { exchangeRates } = useExchangeRates();
 
   const clearFields = () => {
     setBuyPrice("");
@@ -31,7 +24,7 @@ export default function Home() {
     setQuantity("");
     setFees("");
     setProfit(null);
-    setSelectedCurrency("$");
+    setSelectedCurrency("USD");
   };
 
   const calculateProfit = () => {
@@ -154,20 +147,18 @@ export default function Home() {
             <select
               value={selectedCurrency}
               onChange={(e) => setSelectedCurrency(e.target.value)}
-              disabled = {true}
               className="border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
             >
-              <option value="$">USD ($)</option>
-              <option value="€">EUR (€)</option>
-              <option value="£">GBP (£)</option>
-              <option value="¥">JPY (¥)</option>
-            </select>
+              <option value="USD">USD</option>
+              {Object.keys(exchangeRates).map((currency) => (
+                currency !== "USD" && (
+                  <option key={currency} value={currency}>
+                    {currency.toUpperCase()}
+                  </option>
+                )
+              ))}
+          </select>
           </div>
-
-          {/* Buy Price Section */}
-          {/* Rest of your code remains the same... */}
-
-          {/* Profit Section */}
           <div className="flex justify-between items-center">
             <label className="font-medium text-black dark:text-gray-200">
               Profits
@@ -185,7 +176,7 @@ export default function Home() {
               placeholder="0.0"
               value={profit !== null ? profit : ""}
               readOnly
-              className={`w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 rounded px-3 py-2 pl-10 pr-3 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 
+              className={`w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 rounded px-3 pl-16 py-2 pr-3 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 
               ${profit !== null
                 ? parseFloat(profit) > 0
                   ? "text-green-500"
@@ -195,18 +186,9 @@ export default function Home() {
                 : ""}`}
             />
             <span
-              className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                profit !== null
-                  ? parseFloat(profit) > 0
-                    ? "text-green-500"
-                    : parseFloat(profit) < 0
-                    ? "text-red-500"
-                    : "text-yellow-500"
-                  : ""
-              }`}
-            >
-              {selectedCurrency}
-            </span>
+              className="absolute left-3 top-1/2 transform -translate-y-1/2"> 
+              {selectedCurrency.toUpperCase()}
+              </span>
               </div>
               </div>
           {/* Buttons */}
