@@ -2,16 +2,15 @@
 
 <p><b>MOBILE VIEW:</b></p>
 
-![image](https://github.com/user-attachments/assets/59497d36-da14-4aa4-8134-61a2c62cfb66)
-
+![image](https://github.com/user-attachments/assets/7f46cdaa-752a-4939-b63d-ae643adcc605)
 
 <p><b>DESKTOP VIEW:</b> </p>
 
-![image](https://github.com/user-attachments/assets/ee6aba22-078f-4aa7-9263-2e628fac19b9)
-
+![image](https://github.com/user-attachments/assets/463f9e35-16e6-49b4-975c-c30e54279c90)
 
 <p><b> TABLET VIEW:</b> </p>
 
-![image](https://github.com/user-attachments/assets/7b7a990c-4d5f-4bc6-b6a9-0649b0486960)
+![image](https://github.com/user-attachments/assets/e94bc9dc-18e3-4e3c-9930-16085a11731e)
+
 
 
