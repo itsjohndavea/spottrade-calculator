@@ -3,6 +3,7 @@
 import { useState } from "react";
 import MessageDialog from "./messagedialog"; // Import the MessageDialog component
 import useExchangeRates from "./exchangerates";
+import { FaChevronDown } from 'react-icons/fa'; // Import dropdown icon
 
 export default function Home() {
   const [buyPrice, setBuyPrice] = useState<string>("");
@@ -11,11 +12,14 @@ export default function Home() {
   const [fees, setFees] = useState<string>("");
   const [profit, setProfit] = useState<string | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("USD");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [dialogState, setDialogState] = useState({
     isOpen: false,
     type: "info" as "error" | "success" | "info",
     message: "",
   });
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const { exchangeRates } = useExchangeRates();
 
   const clearFields = () => {
@@ -25,6 +29,14 @@ export default function Home() {
     setFees("");
     setProfit(null);
     setSelectedCurrency("USD");
+  };
+  const filteredCurrencies = Object.keys(exchangeRates).filter((currency) =>
+    currency.toUpperCase().includes(searchTerm.toUpperCase())
+  );
+
+  const handleCurrencySelect = (currency: string) => {
+    setSelectedCurrency(currency);
+    setIsModalOpen(false);
   };
 
   const calculateProfit = () => {
@@ -70,6 +82,7 @@ export default function Home() {
     const baseProfit = (sell - buy) * qty - fee;
     const convertedProfit = baseProfit * (exchangeRates[selectedCurrency] || 1);
     setProfit(convertedProfit.toFixed(2));
+    console.log(`value: ${convertedProfit}`);
   };
 
   const closeDialog = () => {
@@ -89,13 +102,20 @@ export default function Home() {
               Buy Price
             </label>
           </div>
-          <input
-            type="number"
-            value={buyPrice}
-            onChange={(e) => setBuyPrice(e.target.value)}
-            className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
-            placeholder="Enter buy price"
-          />
+
+          <div className="relative">
+            <input
+              type="number"
+              value={buyPrice}
+              onChange={(e) => setBuyPrice(e.target.value)}
+              className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 pr-14"
+              placeholder="Enter buy price"
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black dark:text-gray-200">
+              USD
+            </span>
+          </div>
+
 
           {/* Sell Price */}
           <div className="flex justify-between items-center">
@@ -103,13 +123,18 @@ export default function Home() {
               Sell Price
             </label>
           </div>
+          <div className="relative">
           <input
             type="number"
             value={sellPrice}
             onChange={(e) => setSellPrice(e.target.value)}
-            className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
+            className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 pr-14"
             placeholder="Enter sell price"
           />
+           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black dark:text-gray-200">
+              USD
+            </span>
+         </div>
 
           {/* Quantity */}
           <div className="flex justify-between items-center">
@@ -131,52 +156,114 @@ export default function Home() {
               Trading Fees
             </label>
           </div>
+          <div className="relative">
           <input
             type="number"
             value={fees}
             onChange={(e) => setFees(e.target.value)}
-            className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
+            className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 pr-14"
             placeholder="Enter trading fees"
           />
-      <div className="space-y-4">
-          {/* Currency Selection */}
-          <div className="flex justify-between items-center">
-            <label className="font-medium text-black dark:text-gray-200">
-              Currency
-            </label>
-            <select
-              value={selectedCurrency}
-              onChange={(e) => setSelectedCurrency(e.target.value)}
-              className="border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
-            >
-              <option value="USD">USD</option>
-              {Object.keys(exchangeRates).map((currency) => (
-                currency !== "USD" && (
-                  <option key={currency} value={currency}>
-                    {currency.toUpperCase()}
-                  </option>
-                )
-              ))}
-          </select>
-          </div>
-          <div className="flex justify-between items-center">
-            <label className="font-medium text-black dark:text-gray-200">
-              Profits
-            </label>
-            <span
-              className="mr-1 hover:dark:border-gray-300 hover:border-gray-500 cursor-pointer text-gray-500 dark:text-gray-300 flex items-center justify-center w-6 h-6 rounded-full border border-gray-300 dark:border-gray-700 text-center"
-              title="This shows the calculated profit based on the input values."
-            >
-              ?
+          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black dark:text-gray-200">
+              USD
             </span>
           </div>
-          <div className="relative">
+          {/* Currency Selection */}
+      <div className="flex flex-col w-full">
+      <label className="font-medium text-black dark:text-gray-200">
+        Currency Profits
+      </label>
+      </div>
+      <div className="flex items-center w-full">
+        <button
+          onClick={() => setIsModalOpen(true)} // Open modal on button click
+          className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 flex items-center justify-between"
+        >
+          {/* Display selected currency on the left */}
+          <span>{selectedCurrency.toUpperCase()}</span>
+          {/* Display the dropdown icon on the right */}
+          <FaChevronDown className="ml-2" />
+        </button>
+    </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-black dark:text-gray-200">
+                Select Currency Profit
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 transition-colors duration-300"
+              >
+                X
+              </button>
+            </div>
+            <input
+              type="text"
+              placeholder="Search currency..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full mb-4 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-200 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700"
+            />
+            <div className="max-h-48 overflow-y-auto custom-scrollbar">
+              <ul>
+                {filteredCurrencies.map((currency) => (
+                  <li
+                    key={currency}
+                    onClick={() => handleCurrencySelect(currency)}
+                    className="cursor-pointer px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-300"
+                  >
+                    {currency.toUpperCase()}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+        <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #4A5568; /* Dark grey */
+          border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #2D3748; /* Slightly darker grey */
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-button {
+          display: none;
+        }
+        `}
+        </style>
+      {/* Profits Section */}
+      <div className="flex justify-between items-center">
+        <label className="font-medium text-black dark:text-gray-200">
+          Profits
+        </label>
+        <span
+          className="mr-1 hover:dark:border-gray-300 hover:border-gray-500 cursor-pointer text-gray-500 dark:text-gray-300 flex items-center justify-center w-6 h-6 rounded-full border border-gray-300 dark:border-gray-700 text-center"
+          title="This shows the calculated profit based on the input values."
+        >
+          ?
+        </span>
+      </div>
+      <div className="relative">
             <input
               type="number"
               placeholder="0.0"
               value={profit !== null ? profit : ""}
               readOnly
-              className={`w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 rounded px-3 pl-16 py-2 pr-3 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 
+              className={`w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 rounded px-3 py-2 pr-3 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 
               ${profit !== null
                 ? parseFloat(profit) > 0
                   ? "text-green-500"
@@ -186,22 +273,21 @@ export default function Home() {
                 : ""}`}
             />
             <span
-              className="absolute left-3 top-1/2 transform -translate-y-1/2"> 
+              className="absolute right-3 top-1/2 transform -translate-y-1/2"> 
               {selectedCurrency.toUpperCase()}
               </span>
-              </div>
               </div>
           {/* Buttons */}
           <button
             onClick={calculateProfit}
             className="w-full bg-blue-500 dark:bg-blue-700 text-white rounded px-4 py-2 hover:bg-blue-600 dark:hover:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
           >
-            Calculate Profit
+          Calculate Profit
           </button>
 
           <button
             onClick={clearFields}
-            className="w-full bg-black text-white dark:bg-white dark:text-black rounded px-4 py-2 hover:bg-gray-300 hover:text-black dark:hover:bg-gray-500 hover:dark:text-white focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
+            className="w-full bg-black text-white dark:bg-white dark:text-black rounded px-4 py-2 hover:bg-gray-300 hover:text-black dark:hover:bg-gray-500 hover:dark:text-white focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-gray-700 transition-colors duration-300"
           >
             Clear Fields
           </button>
