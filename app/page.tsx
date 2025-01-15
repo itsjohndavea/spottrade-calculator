@@ -19,7 +19,6 @@ export default function Home() {
     message: "",
   });
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const { exchangeRates } = useExchangeRates();
 
   const clearFields = () => {
