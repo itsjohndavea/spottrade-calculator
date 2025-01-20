@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Spot Trade Calculator",
+  title: "Spot Trader Calculator",
   description: "Calculator for Spot Trader who want to know their profit.",
 };
 

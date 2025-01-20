@@ -102,8 +102,8 @@ export default function Home() {
   }, [yourMoney, buyPrice]); 
 
   return (
-    <div className="n bg-gray-100 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md transition-colors duration-300">
+    <div className="h-screen w-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md transition-colors duration-300">
         <h1 className="text-2xl font-bold text-black dark:text-white mb-4 text-center">
           Spot Trade Calculator
         </h1>
