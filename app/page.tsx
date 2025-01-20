@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MessageDialog from "./messagedialog"; // Import the MessageDialog component
 import useExchangeRates from "./exchangerates";
 import { FaChevronDown } from 'react-icons/fa'; // Import dropdown icon
 
 export default function Home() {
+  const [yourMoney, setYourMoney] = useState<string>("");
   const [buyPrice, setBuyPrice] = useState<string>("");
   const [sellPrice, setSellPrice] = useState<string>("");
   const [quantity, setQuantity] = useState<string>("");
@@ -22,6 +23,7 @@ export default function Home() {
   const { exchangeRates } = useExchangeRates();
 
   const clearFields = () => {
+    setYourMoney("");
     setBuyPrice("");
     setSellPrice("");
     setQuantity("");
@@ -43,7 +45,14 @@ export default function Home() {
     const sell = parseFloat(sellPrice);
     const qty = parseFloat(quantity);
     const fee = parseFloat(fees);
-
+    if (isNaN(buy) || buy < 0) {
+      setDialogState({
+        isOpen: true,
+        type: "error",
+        message: "Please enter a valid funds price.",
+      });
+      return;
+    }
     if (isNaN(buy) || buy < 0) {
       setDialogState({
         isOpen: true,
@@ -57,14 +66,6 @@ export default function Home() {
         isOpen: true,
         type: "error",
         message: "Please enter a valid sell price.",
-      });
-      return;
-    }
-    if (isNaN(qty) || qty < 0) {
-      setDialogState({
-        isOpen: true,
-        type: "error",
-        message: "Please enter a valid quantity.",
       });
       return;
     }
@@ -88,20 +89,49 @@ export default function Home() {
     setDialogState({ ...dialogState, isOpen: false });
   };
 
+  useEffect(() => {
+    const money = parseFloat(yourMoney);
+    const price = parseFloat(buyPrice);
+
+    // Check if values are valid numbers
+    if (!isNaN(money) && !isNaN(price) && price > 0) {
+      setQuantity((money / price).toFixed(2)); 
+    } else {
+      setQuantity(""); 
+    }
+  }, [yourMoney, buyPrice]); 
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
+    <div className="n bg-gray-100 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md transition-colors duration-300">
         <h1 className="text-2xl font-bold text-black dark:text-white mb-4 text-center">
           Spot Trade Calculator
         </h1>
         <div className="space-y-4">
+        {/* Your Money*/}
+        <div className="flex justify-between items-center">
+            <label className="font-medium text-black dark:text-gray-200">
+            Available Funds
+            </label>
+          </div>
+          <div className="relative">
+            <input
+              type="number"
+              value={yourMoney}
+              onChange={(e) => setYourMoney(e.target.value)}
+              className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300 pr-14"
+              placeholder="Enter funds price"
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black dark:text-gray-200">
+              USD
+            </span>
+          </div>
           {/* Buy Price */}
           <div className="flex justify-between items-center">
             <label className="font-medium text-black dark:text-gray-200">
               Buy Price
             </label>
           </div>
-
           <div className="relative">
             <input
               type="number"
@@ -114,8 +144,6 @@ export default function Home() {
               USD
             </span>
           </div>
-
-
           {/* Sell Price */}
           <div className="flex justify-between items-center">
             <label className="font-medium text-black dark:text-gray-200">
@@ -144,11 +172,11 @@ export default function Home() {
           <input
             type="number"
             value={quantity}
+            disabled
             onChange={(e) => setQuantity(e.target.value)}
             className="w-full border border-gray-300 dark:border-gray-700 text-black dark:text-gray-200 bg-white dark:bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-700 transition-colors duration-300"
-            placeholder="Enter quantity"
+            placeholder="0"
           />
-
           {/* Fees */}
           <div className="flex justify-between items-center">
             <label className="font-medium text-black dark:text-gray-200">
